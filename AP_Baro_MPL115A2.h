@@ -30,11 +30,11 @@ REGISTERS
 
 #include "AP_Baro.h"
 
-class AP_BARO_MPL115A2 : public AP_Baro
+class AP_Baro_MPL115A2 : public AP_Baro
 {
  public:
  
-	  AP_BARO_MPL115A2();		//Constructor
+	  AP_Baro_MPL115A2();					//Constructor
 	  
 	  
 	  /* AP_Baro public interface: */  
@@ -43,16 +43,21 @@ class AP_BARO_MPL115A2 : public AP_Baro
 	  void 			accumulate(void);
 	  float 	getPressure();
 	  float 	getTemperature();
-	  void 		getPT(float *P, float *T);    
+	      
     
   
 
  private:
+	  float 	Temp;
+	  float 	Press;
+	  
+	  //Internal calibration registers
 	  float 	_mpl115a2_a0;
 	  float 	_mpl115a2_b1;
 	  float 	_mpl115a2_b2;
 	  float 	_mpl115a2_c12;
 
+	  void 		getPT(float *P, float *T);
 	  void 		readCoefficients();
 };
 

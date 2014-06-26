@@ -32,22 +32,22 @@ REGISTERS
 
 class AP_Baro_MPL115A2 : public AP_Baro
 {
- public:
- 
-	  AP_Baro_MPL115A2();					//Constructor
-	  
+ public: 
+	  AP_Baro_MPL115A2(){
+			_mpl115a2_a0 = 0.0F;
+			_mpl115a2_b1 = 0.0F;
+			_mpl115a2_b2 = 0.0F;
+			_mpl115a2_c12 = 0.0F;
+	  };					//Constructor	  
 	  
 	  /* AP_Baro public interface: */  
-	  bool 		init();						// void begin(void);
+	  bool 		init();						
 	  uint8_t 	read();
 	  void 			accumulate(void);
 	  float 	getPressure();
-	  float 	getTemperature();
-	      
-    
-  
+	  float 	getTemperature(); 
 
- private:
+ private:	  
 	  float 	Temp;
 	  float 	Press;
 	  
@@ -57,8 +57,7 @@ class AP_Baro_MPL115A2 : public AP_Baro
 	  float 	_mpl115a2_b2;
 	  float 	_mpl115a2_c12;
 
-	  void 		getPT(float *P, float *T);
-	  void 		readCoefficients();
+	  void 		getPT(float *P, float *T);	  
 };
 
 #endif // __AP_BARO_MPL115A2_H__

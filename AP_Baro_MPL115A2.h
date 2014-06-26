@@ -44,8 +44,8 @@ class AP_Baro_MPL115A2 : public AP_Baro
 	  bool 		init();						
 	  uint8_t 	read();
 	  void 			accumulate(void);
-	  float 	getPressure();
-	  float 	getTemperature(); 
+	  float 	get_pressure();
+	  float 	get_temperature(); 
 
  private:	  
 	  float 	Temp;

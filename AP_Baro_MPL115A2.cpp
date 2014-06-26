@@ -95,7 +95,7 @@ void AP_Baro_MPL115A2::getPT(float *P, float *T)
 	hal.i2c->writeRegister(MPL115A2_ADDRESS, MPL115A2_REGISTER_STARTCONVERSION, 0x00);
 	
 	// Wait a bit for the conversion to complete (3ms max)
-	delay(5);
+	hal.scheduler->delay(5);
 
 	hal.i2c->readRegisters(MPL115A2_ADDRESS, MPL115A2_REGISTER_PRESSURE_MSB, 4, buff);
 

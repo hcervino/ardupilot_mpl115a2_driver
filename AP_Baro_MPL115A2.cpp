@@ -20,9 +20,7 @@ bool AP_Baro_MPL115A2::init()
 	int16_t a0coeff;
 	int16_t b1coeff;
 	int16_t b2coeff;
-	int16_t c12coeff;	
-	
-	// Read factory coefficient values (this only needs to be done once)
+	int16_t c12coeff;		
 		
     // get pointer to i2c bus semaphore
     AP_HAL::Semaphore* i2c_sem = hal.i2c->get_semaphore();
@@ -31,7 +29,7 @@ bool AP_Baro_MPL115A2::init()
     if (!i2c_sem->take(HAL_SEMAPHORE_BLOCK_FOREVER))
         return false;        
         
-    // We read the calibration data registers
+    // Read factory coefficient values (this only needs to be done once)
     if (hal.i2c->readRegisters(MPL115A2_ADDRESS, MPL115A2_REGISTER_A0_COEFF_MSB, 8, buff) != 0) {
         healthy = false;
         i2c_sem->give();
@@ -77,7 +75,8 @@ void AP_Baro_MPL115A2::accumulate(void)
      // take i2c bus sempahore
     if (!i2c_sem->take(1))
         return;
-        
+     
+    getPT(&Press, &Temp);   
     
     i2c_sem->give();    
 }
@@ -141,7 +140,13 @@ void AP_Baro_MPL115A2::getPT(float *P, float *T)
 	*P = ((65.0F / 1023.0F) * pressureComp) + 50.0F; // kPa
 	*T = ((float) temp - 498.0F) / -5.35F +25.0F; // C
 	
-	 _press_sum +=*P;
-	 _temp_sum +=*T;
-	 _count++;
+	_press_sum +=*P;
+	_temp_sum +=*T;
+	
+	_count++;
+	if (_count == 254) {
+        _temp_sum *= 0.5;
+        _press_sum *= 0.5;
+        _count /= 2;
+    }
 }

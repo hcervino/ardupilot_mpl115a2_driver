@@ -71,14 +71,37 @@ float AP_Baro_MPL115A2::get_temperature() {
 // acumulate a new sensor reading
 void AP_Baro_MPL115A2::accumulate(void)
 {
-	//Code
+	// get pointer to i2c bus semaphore
+    AP_HAL::Semaphore* i2c_sem = hal.i2c->get_semaphore();
+    
+     // take i2c bus sempahore
+    if (!i2c_sem->take(1))
+        return;
+        
+    
+    i2c_sem->give();    
 }
 
 // Read the sensor using accumulated data
 uint8_t AP_Baro_MPL115A2::read()
 {
-	//Code
-	return 1;
+	if (_count == 0) {
+        accumulate();
+    }
+    if (_count == 0) {
+        return 0;
+    }
+    _last_update = hal.scheduler->millis();
+
+    Temp = 0.1f * _temp_sum / _count;
+    Press = _press_sum / _count;
+
+    _pressure_samples = _count;
+    _count = 0;
+    _temp_sum = 0;
+    _press_sum = 0;
+
+    return 1;
 }
 
 
@@ -101,9 +124,12 @@ void AP_Baro_MPL115A2::getPT(float *P, float *T)
 
 	// Get raw pressure and temperature settings
 	if(hal.i2c->readRegisters(MPL115A2_ADDRESS, MPL115A2_REGISTER_PRESSURE_MSB, 4, buff)!=0){
+		_retry_time = hal.scheduler->millis() + 1000;
 		healthy=false;
 		return;
-	}
+	}	
+	_last_press_read_command_time = hal.scheduler->millis();
+	_last_temp_read_command_time = hal.scheduler->millis();
 		
 	pressure = (( (uint16_t) buff[0] << 8) | buff[1]) >> 6;
 	temp = (( (uint16_t) buff[2] << 8) | buff[3]) >> 6;
@@ -114,4 +140,8 @@ void AP_Baro_MPL115A2::getPT(float *P, float *T)
 	// Return pressure and temperature as floating point values
 	*P = ((65.0F / 1023.0F) * pressureComp) + 50.0F; // kPa
 	*T = ((float) temp - 498.0F) / -5.35F +25.0F; // C
+	
+	 _press_sum +=*P;
+	 _temp_sum +=*T;
+	 _count++;
 }

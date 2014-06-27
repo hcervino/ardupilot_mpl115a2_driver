@@ -43,19 +43,27 @@ class AP_Baro_MPL115A2 : public AP_Baro
 	  /* AP_Baro public interface: */  
 	  bool 		init();						
 	  uint8_t 	read();
-	  void 			accumulate(void);
+	  void 		accumulate(void);
 	  float 	get_pressure();
 	  float 	get_temperature(); 
 
  private:	  
-	  float 	Temp;
-	  float 	Press;
+	  float		_temp_sum;
+	  float		_press_sum;
+      uint8_t	_count;
+      float 	Temp;
+      float 	Press;
+      // Flymaple has no EOC pin, so use times instead
+      uint32_t  _last_press_read_command_time;
+      uint32_t  _last_temp_read_command_time;
 	  
 	  //Internal calibration registers
 	  float 	_mpl115a2_a0;
 	  float 	_mpl115a2_b1;
 	  float 	_mpl115a2_b2;
 	  float 	_mpl115a2_c12;
+	  
+	  uint32_t  _retry_time;
 
 	  void 		getPT(float *P, float *T);	  
 };

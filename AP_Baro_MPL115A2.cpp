@@ -91,15 +91,20 @@ void AP_Baro_MPL115A2::getPT(float *P, float *T)
 	float pressureComp;
 	uint8_t buff[4];
            
-	// Get raw pressure and temperature settings	
-	hal.i2c->writeRegister(MPL115A2_ADDRESS, MPL115A2_REGISTER_STARTCONVERSION, 0x00);
+	// Send command STARTCONVERSION	
+	if(hal.i2c->writeRegister(MPL115A2_ADDRESS, MPL115A2_REGISTER_STARTCONVERSION, 0x00)!=0){
+		healthy=false;		
+	}
 	
 	// Wait a bit for the conversion to complete (3ms max)
 	hal.scheduler->delay(5);
 
-	hal.i2c->readRegisters(MPL115A2_ADDRESS, MPL115A2_REGISTER_PRESSURE_MSB, 4, buff);
-
-	//Wire.requestFrom(MPL115A2_ADDRESS, 4);
+	// Get raw pressure and temperature settings
+	if(hal.i2c->readRegisters(MPL115A2_ADDRESS, MPL115A2_REGISTER_PRESSURE_MSB, 4, buff)!=0){
+		healthy=false;
+		return;
+	}
+		
 	pressure = (( (uint16_t) buff[0] << 8) | buff[1]) >> 6;
 	temp = (( (uint16_t) buff[2] << 8) | buff[3]) >> 6;
 

@@ -58,10 +58,10 @@ bool AP_Baro_MPL115A2::init()
 	_mpl115a2_c12 /= 4194304.0;	
 	
 	_last_press_read_command_time = 0;
-    _last_temp_read_command_time = 0;
+	_last_temp_read_command_time = 0;
 		
 	healthy = true;
-    i2c_sem->give();
+	i2c_sem->give();
 	return true;
 			  
 }
@@ -81,7 +81,7 @@ float AP_Baro_MPL115A2::get_temperature() {
 // Read the sensor. This is a state machine
 // acumulate a new sensor reading
 void AP_Baro_MPL115A2::accumulate(void){     
-    getPT(&Press, &Temp);         
+	getPT(&Press, &Temp);         
 }
 
 // Read the sensor using accumulated data
@@ -117,11 +117,11 @@ void AP_Baro_MPL115A2::getPT(float *P, float *T)
 	uint8_t buff[4];
 	
 	// get pointer to i2c bus semaphore
-    AP_HAL::Semaphore* i2c_sem = hal.i2c->get_semaphore();
+	AP_HAL::Semaphore* i2c_sem = hal.i2c->get_semaphore();
     
-     // take i2c bus sempahore
-    if (!i2c_sem->take(1))
-        return;
+	// take i2c bus sempahore
+	if (!i2c_sem->take(1))
+		return;
            
 	// Send command STARTCONVERSION	
 	if(hal.i2c->writeRegister(MPL115A2_ADDRESS, MPL115A2_REGISTER_STARTCONVERSION, 0x00)!=0){
@@ -131,9 +131,9 @@ void AP_Baro_MPL115A2::getPT(float *P, float *T)
 	// Wait a bit for the conversion to complete (3ms max)
 	hal.scheduler->delay(5);
 	
-	 if (!healthy && hal.scheduler->millis() < _retry_time) {
-        return; 
-     }   
+	if (!healthy && hal.scheduler->millis() < _retry_time) {
+		return; 
+	}   
 		
 	// Get raw pressure and temperature settings
 	if(hal.i2c->readRegisters(MPL115A2_ADDRESS, MPL115A2_REGISTER_PRESSURE_MSB, 4, buff)!=0){
@@ -161,10 +161,10 @@ void AP_Baro_MPL115A2::getPT(float *P, float *T)
 	
 	_count++;
 	if (_count == 254) {
-        _temp_sum *= 0.5;
-        _press_sum *= 0.5;
-        _count /= 2;
-    }
+		_temp_sum *= 0.5;
+		_press_sum *= 0.5;
+		_count /= 2;
+	}
     
-    i2c_sem->give();
+	i2c_sem->give();
 }
